@@ -447,63 +447,24 @@ function bkSubmit() {
   var lastName  = fv('last_name');
   var phone     = fv('phone');
   var service   = fv('service');
-  var goal      = fv('goal');
-  var prefDate  = fv('preferred_date');
-  var prefTime  = fv('preferred_time');
   var notes     = fv('health_notes');
   var fullName  = (firstName + ' ' + lastName).trim();
 
-  if (!phone) {
-    alert('Please enter your WhatsApp / Phone number to receive a confirmation.');
-    return;
-  }
+  if (!firstName) { alert('Please enter your first name.'); return; }
+  if (!phone)     { alert('Please enter your WhatsApp / Phone number.'); return; }
+  if (!service)   { alert('Please select a service.'); return; }
 
-  /* Clean phone number - remove spaces, dashes, brackets */
-  var customerPhone = phone.replace(/[\s\-\(\)]/g, '');
-  if (customerPhone.charAt(0) === '0') customerPhone = '91' + customerPhone.slice(1);
-  if (customerPhone.charAt(0) !== '+' && customerPhone.slice(0,2) !== '91') customerPhone = '91' + customerPhone;
-  customerPhone = customerPhone.replace(/^\+/, '');
-
-  /* Build confirmation message for CUSTOMER */
   var ln = '\n';
-  var confirmMsg = '\u2705 *Booking Confirmed \u2014 Fit & Shine Wellness Centre*' + ln + ln
-    + 'Dear ' + firstName + ',' + ln + ln
-    + 'Thank you for booking a *Free Consultation* with us! \ud83d\ude4f' + ln + ln
-    + '\ud83d\udccb *Your Booking Details:*' + ln
-    + '\ud83d\udc64 Name: ' + fullName + ln
-    + '\ud83d\udcde Phone: ' + phone + ln
-    + (service  ? '\ud83d\udcbc Service: ' + service + ln  : '')
-    + (goal     ? '\ud83c\udfaf Goal: '    + goal    + ln  : '')
-    + (prefDate ? '\ud83d\udcc5 Date: '    + prefDate + ln : '')
-    + (prefTime ? '\ud83d\udd50 Time: '    + prefTime + ln : '')
-    + (notes    ? '\ud83d\udcdd Notes: '   + notes    + ln : '')
-    + ln
-    + '\ud83d\udccd *Location:* Gate No 1, Ganesh Glory, Gota, Ahmedabad' + ln
-    + '\ud83d\udcde *Call/WhatsApp:* +91 98244 55234' + ln
-    + '\ud83d\udce7 *Email:* fitandshinewellness@gmail.com' + ln + ln
-    + 'Our team will call you shortly to confirm your appointment. We look forward to your transformation journey! \ud83d\udcaa' + ln + ln
-    + '\u2014 *Coach Kartik & Shilpa*' + ln
-    + '*Fit & Shine Wellness Centre, Ahmedabad*';
+  var ownerMsg = 'New Appointment Request' + ln
+    + 'Fit & Shine Wellness Centre' + ln + ln
+    + 'Name: '    + fullName + ln
+    + 'Phone: '   + phone    + ln
+    + 'Service: ' + service  + ln
+    + (notes ? 'Notes: ' + notes + ln : '');
 
-  /* Build notification message for ADMIN */
-  var adminMsg = '\ud83d\udd14 *New Appointment Booking*' + ln + ln
-    + '\ud83d\udc64 Name: '    + fullName  + ln
-    + '\ud83d\udcde Phone: '   + phone     + ln
-    + (service  ? '\ud83d\udcbc Service: ' + service  + ln : '')
-    + (goal     ? '\ud83c\udfaf Goal: '    + goal     + ln : '')
-    + (prefDate ? '\ud83d\udcc5 Date: '    + prefDate + ln : '')
-    + (prefTime ? '\ud83d\udd50 Time: '    + prefTime + ln : '')
-    + (notes    ? '\ud83d\udcdd Notes: '   + notes    + ln : '');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
 
-  if (btn) { btn.disabled = true; btn.textContent = 'Opening WhatsApp...'; }
-
-  /* Open WhatsApp to CUSTOMER first */
-  window.open('https://wa.me/' + customerPhone + '?text=' + encodeURIComponent(confirmMsg), '_blank');
-
-  /* Open WhatsApp to ADMIN after short delay */
-  setTimeout(function() {
-    window.open('https://wa.me/919824455234?text=' + encodeURIComponent(adminMsg), '_blank');
-  }, 1500);
+  window.open('https://wa.me/919824455234?text=' + encodeURIComponent(ownerMsg), '_blank');
 
   showBookingSuccess(form, btn, toast, firstName);
 }
@@ -511,17 +472,13 @@ function bkSubmit() {
 function showBookingSuccess(form, btn, toast, name) {
   if (toast) {
     toast.style.display = 'block';
-    toast.innerHTML = '\u2705 <strong>Booking Submitted!</strong> WhatsApp is opening to send '
-      + (name ? name : 'you') + ' a confirmation. Admin has also been notified. \ud83d\ude4f';
+    toast.innerHTML = '<strong>Submitted!</strong> Your details have been sent to our team. We will contact you shortly.';
     setTimeout(function() { toast.style.display = 'none'; }, 8000);
   }
-  if (btn) { btn.disabled = false; btn.textContent = '\ud83d\udcc5 Confirm My Booking'; }
-  /* Clear all fields manually */
-  var frm = document.getElementById('book-form');
-  if (frm) {
-    frm.querySelectorAll('input, select, textarea').forEach(function(el) {
-      if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
-      else el.value = '';
+  if (btn) { btn.disabled = false; btn.textContent = 'Submit'; }
+  if (form) {
+    form.querySelectorAll('input, select, textarea').forEach(function(el) {
+      el.value = '';
     });
   }
 }
